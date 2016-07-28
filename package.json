@@ -1,0 +1,11 @@
+{
+    "name": "analytics-mongo",
+    "version": "1.0.0",
+    "main": "app.js",
+    "dependencies": {
+        "express": "latest",
+        "mongoose": "latest",
+        "body-parser": "latest",
+        "morgan": "latest"
+    }
+}
