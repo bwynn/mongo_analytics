@@ -6,4 +6,8 @@ module.exports = function(app) {
     app.post('/get_data', analyticsCtrl.getData);
 
     app.post('/log_event', analyticsCtrl.getData);
+
+    app.put('/log_hit', analyticsCtrl.logHit);
+
+    app.get('/review_daily_logs', analyticsCtrl.reviewDailyLogs);
 };
