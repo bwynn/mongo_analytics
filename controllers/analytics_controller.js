@@ -25,15 +25,15 @@ exports.getData = function(req, res) {
 // PUT - /log_hit
 // this will increment the value depending on number of hits a page/record get
 // pinged. it will increment in both the daily stats, as well as in the monthly
-// total. 
+// total.
 exports.logHit = function(req, res) {
 
     // update daily stats doc
     const d = new Date, // new date
           t = d.getTime(), // convert to ms
-          m = d.getMonth().toString(),
+          m = (d.getMonth() + 1).toString(),
           day = d.getDay().toString(),
-          y = d.getYear().toString(),
+          y = d.getFullYear().toString(),
           newD = m + day + y,
           id_daily = newD + req.route.path, // create id string
           hour = parseInt(d.getHours()), // get current hour
