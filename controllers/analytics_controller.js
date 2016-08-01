@@ -27,8 +27,6 @@ exports.logHit = function(req, res) {
     // update daily stats doc
     const d = new Date, // new date
           t = d.getTime(), // convert to ms
-          tsStr = t.toString(), // conver to string,
-          toISO = d.toISOString(),
           m = d.getMonth().toString(),
           day = d.getDay().toString(),
           y = d.getYear().toString(),
