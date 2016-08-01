@@ -34,26 +34,24 @@ exports.logHit = function(req, res) {
           y = d.getYear().toString(),
           newD = m + day + y,
           id_daily = newD + req.route.path, // create id string
-          hour = d.getHours(), // get current hour
-          curMinute = d.getMinutes(); // get current minutes
+          hour = parseInt(d.getHours()), // get current hour
+          curMinute = d.getMinutes(), // get current minutes
+          hourQuery = 'hourly.' + hour.toString(),
+          minuteQuery = 'minute.' + hour.toString() + '.' + curMinute.toString();
 
     // get datetime that only includes date info
     const query = {'_id': id_daily, 'metadata': {'date': newD, 'site': req.route.path}},
-          update = {'$inc': {
-            'hourly.0': 1, 
-            'minute.0.12': 1
-          }};
+          update = {
+              '$inc': {[hourQuery]: 1, [minuteQuery]: 1}
+          };
 
           console.log(update);
-
-          DailyStats.update(query, update, {upsert: true}, function(err, data) {
+          DailyStats.findOneAndUpdate(query, update, {upsert: true}, function(err, record) {
               if (err) {
                   res.send(err);
               }
 
-              res.json(data);
-          }, function(rejected) {
-              console.log(rejected);
+              res.json(record);
           });
 
     // update monthly stats document
