@@ -2,7 +2,7 @@
 
 const Analytics = require('../models/analytics_model'),
       DailyStats = require('../models/daily_stats_model'),
-      MonthlyStats = require('../models/monthly_stats_schema');
+      MonthlyStats = require('../models/monthly_stats_model');
 
 // POST - /get_data
 exports.getData = function(req, res) {
@@ -23,6 +23,9 @@ exports.getData = function(req, res) {
 };
 
 // PUT - /log_hit
+// this will increment the value depending on number of hits a page/record get
+// pinged. it will increment in both the daily stats, as well as in the monthly
+// total. 
 exports.logHit = function(req, res) {
 
     // update daily stats doc
@@ -37,7 +40,9 @@ exports.logHit = function(req, res) {
           curMinute = d.getMinutes(), // get current minutes
           hourQuery = 'hourly.' + hour.toString(),
           minuteQuery = 'minute.' + hour.toString() + '.' + curMinute.toString(),
-          dailyQuery = day,
+          newM = m + y,
+          dailyQuery = 'daily.' + day,
+          id_monthly = newM + req.route.path,
           site = req.route.path;
 
     // get datetime that only includes date info
@@ -47,19 +52,20 @@ exports.logHit = function(req, res) {
           };
 
           console.log(update);
-          DailyStats.findOneAndUpdate(query, update, {upsert: true}, function(err, record) {
+          DailyStats.findOneAndUpdate(query, update, {upsert: true}, (err, record) => {
               if (err) {
                   res.send(err);
               }
 
-              res.json(record);
+              console.log(record)
+          }, function(rejected) {
+              console.log(rejected);
           });
 
-    // update monthly stats document
-    const monthQuery = {'_id': id_monthly, 'metadata': {'date': day, 'site': site}},
-          monthUpdate = {
-              '$inc': {[dailyQuery]: 1}
-          };
+          const monthQuery = {'_id': id_monthly, 'metadata': {'date': newM, 'site': site}},
+                monthUpdate = {
+                    '$inc': {[dailyQuery]: 1}
+                };
 
           MonthlyStats.findOneAndUpdate(monthQuery, monthUpdate, {upsert: true}, function(err, data) {
               if (err) {

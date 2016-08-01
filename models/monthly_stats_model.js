@@ -4,7 +4,7 @@ const mongoose = require('mongoose'),
 const MonthlyStatsSchema = new Schema({
     _id: String,
     metadata: {
-        date: {type: Date},
+        date: Number,
         site: String,
     },
     daily: {
