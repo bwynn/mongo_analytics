@@ -1,7 +1,8 @@
 "use strict";
 
 const Analytics = require('../models/analytics_model'),
-      DailyStats = require('../models/daily_stats_model');
+      DailyStats = require('../models/daily_stats_model'),
+      MonthlyStats = require('../models/monthly_stats_schema');
 
 // POST - /get_data
 exports.getData = function(req, res) {
@@ -35,10 +36,12 @@ exports.logHit = function(req, res) {
           hour = parseInt(d.getHours()), // get current hour
           curMinute = d.getMinutes(), // get current minutes
           hourQuery = 'hourly.' + hour.toString(),
-          minuteQuery = 'minute.' + hour.toString() + '.' + curMinute.toString();
+          minuteQuery = 'minute.' + hour.toString() + '.' + curMinute.toString(),
+          dailyQuery = day,
+          site = req.route.path;
 
     // get datetime that only includes date info
-    const query = {'_id': id_daily, 'metadata': {'date': newD, 'site': req.route.path}},
+    const query = {'_id': id_daily, 'metadata': {'date': newD, 'site': site}},
           update = {
               '$inc': {[hourQuery]: 1, [minuteQuery]: 1}
           };
@@ -53,6 +56,18 @@ exports.logHit = function(req, res) {
           });
 
     // update monthly stats document
+    const monthQuery = {'_id': id_monthly, 'metadata': {'date': day, 'site': site}},
+          monthUpdate = {
+              '$inc': {[dailyQuery]: 1}
+          };
+
+          MonthlyStats.findOneAndUpdate(monthQuery, monthUpdate, {upsert: true}, function(err, data) {
+              if (err) {
+                  res.send(err);
+              }
+
+              res.json(data);
+          });
 };
 
 // GET - /review_daily_logs
